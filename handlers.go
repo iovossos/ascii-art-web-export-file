@@ -53,9 +53,18 @@ func ServeFileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get file info for Content-Length
+	fileInfo, err := os.Stat("output.txt")
+	if err != nil {
+		log.Printf("Error getting file info: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	// Set headers for download
 	w.Header().Set("Content-Disposition", "attachment; filename=output.txt")
 	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
 
 	// Serve output.txt
 	http.ServeFile(w, r, "output.txt")
